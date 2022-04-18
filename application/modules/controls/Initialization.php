@@ -43,13 +43,59 @@ class Initialization{
         $module_name = $this->module_name;
         $module_path = $this->module_path;
 
-        if(!$this->is_module_initialized()){
+        if($this->is_module_initialized()){
             return false;
         }
 
-        exec("git pull https://user:password@bitbucket.org/user/repo.git {$module_name} {$module_path}");
+        exec("git clone -b {$module_name} https://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@github.com/StrawberryMead/hmvc-with-ci3.git {$module_path}");
 
         return $this->is_module_initialized();
+    }
+
+    public function uninstall_module() : bool{
+        
+        if(empty($this->module_name)){
+            return false;
+        }
+
+        $module_name = $this->module_name;
+        $module_path = $this->module_path;
+
+        if(!($this->is_module_initialized())){
+            return false;
+        }
+        $module = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($module_path, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::CHILD_FIRST
+        );
+
+        foreach ($module as $module_item) {
+            $remove_module = ($module_item->isDir() ? 'rmdir' : 'unlink');
+            chmod($module_item->getRealPath(), 0777);
+            $remove_module($module_item->getRealPath());
+        }
+        
+        chmod($module_path, 0777);
+        rmdir($module_path);
+
+        // $this->remove_dir($module_path);
+        
+        return !($this->is_module_initialized());
+    }
+
+    private function remove_dir(string $dir) : void{    
+        if (is_dir($dir)) { 
+            $objects = scandir($dir);
+            foreach ($objects as $object) { 
+              if ($object != "." && $object != "..") { 
+                if (is_dir($dir. DIRECTORY_SEPARATOR .$object) && !is_link($dir."/".$object))
+                    $this->remove_dir($dir. DIRECTORY_SEPARATOR .$object);
+                else
+                  unlink($dir. DIRECTORY_SEPARATOR .$object); 
+              } 
+            }
+            rmdir($dir); 
+        } 
     }
 
     private function init_module_database() : void {

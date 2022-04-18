@@ -23,7 +23,28 @@ class Module_control{
         );
         $module = new Initialization($init_parameters);
         $initialized_module = $module->init_module();
+        
+        return $initialized_module;
+    }
 
-        return true;
+    public function uninstall_module() : bool{
+
+        $module_name = 'administration';
+        $database_configs = array(
+            'user'=>'user',
+            'password' => 'password',
+            'host' => 'localhost',
+            'schema' => $module_name,
+            'port'  => 5432
+        );
+        $init_parameters = array(
+            'module_name' => $module_name,
+            'application_path' => APPPATH,
+            'database_configs' => $database_configs
+        );
+        $module = new Initialization($init_parameters);
+        $uninstalled_module = $module->uninstall_module();
+        
+        return $uninstalled_module;
     }
 }
